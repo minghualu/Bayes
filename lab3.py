@@ -24,7 +24,7 @@ import random
 
 
 # ## Bayes classifier functions to implement
-# 
+#
 # The lab descriptions state what each function should do.
 
 
@@ -44,7 +44,9 @@ def computePrior(labels, W=None):
 
     # TODO: compute the values of prior for each class!
     # ==========================
-    
+    for jdx, c in enumerate(classes):
+        idx = np.where(labels == c)[0]
+        prior[jdx] = np.sum(W[idx]) / np.sum(W[:])
     # ==========================
 
     return prior
@@ -68,7 +70,26 @@ def mlParams(X, labels, W=None):
 
     # TODO: fill in the code to compute mu and sigma!
     # ==========================
-    
+    for jdx, classname in enumerate(classes):
+
+        idx = labels == classname  # Returns a true or false with the length of y
+        # Or more compactly extract the indices for which y==class is true,
+        # analogous to MATLAB's find
+        idx = np.where(labels == classname)[0]
+        xlc = X[idx, :]  # Get the x for the class labels. Vectors are rows.
+
+        weightsum = sum(W[idx, :])
+
+        # Mean
+        mu[jdx] += np.sum(X[idx, :] * W[idx, :], axis=0) / weightsum
+
+        # Sigma - contains the covariance
+        for dim in range(Ndims):
+            totsum = 0
+            for ind in idx:
+                totsum += W[ind] * (X[ind][dim] - mu[jdx][dim]) ** 2
+            sigma[jdx][dim][dim] = totsum / weightsum
+
     # ==========================
 
     return mu, sigma
@@ -86,9 +107,9 @@ def classifyBayes(X, prior, mu, sigma):
 
     # TODO: fill in the code to compute the log posterior logProb!
     # ==========================
-    
+
     # ==========================
-    
+
     # one possible way of finding max a-posteriori once
     # you have computed the log posterior
     h = np.argmax(logProb,axis=0)
@@ -115,7 +136,7 @@ class BayesClassifier(object):
 
 
 # ## Test the Maximum Likelihood estimates
-# 
+#
 # Call `genBlobs` and `plotGaussian` to verify your estimates.
 
 
@@ -139,7 +160,7 @@ plotGaussian(X,labels,mu,sigma)
 
 
 # ## Boosting functions to implement
-# 
+#
 # The lab descriptions state what each function should do.
 
 
@@ -168,10 +189,10 @@ def trainBoost(base_classifier, X, labels, T=10):
 
         # TODO: Fill in the rest, construct the alphas etc.
         # ==========================
-        
+
         # alphas.append(alpha) # you will need to append the new alpha
         # ==========================
-        
+
     return classifiers, alphas
 
 # in:       X - N x d matrix of N data points
@@ -192,7 +213,7 @@ def classifyBoost(X, classifiers, alphas, Nclasses):
         # TODO: implement classificiation when we have trained several classifiers!
         # here we can do it by filling in the votes vector with weighted votes
         # ==========================
-        
+
         # ==========================
 
         # one way to compute yPred after accumulating the votes
@@ -221,7 +242,7 @@ class BoostClassifier(object):
 
 
 # ## Run some experiments
-# 
+#
 # Call the `testClassifier` and `plotBoundary` functions for this part.
 
 
